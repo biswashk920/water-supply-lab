@@ -1,0 +1,125 @@
+{
+  "name": "Gravity-fed village (Darcy-Weisbach)",
+  "description": "Branched HDPE system from a tank. Uses Darcy-Weisbach, so roughness is in mm. Illustrative numbers.",
+  "headloss": "DW",
+  "viscosity": 1.004e-06,
+  "nodes": [
+    {
+      "id": "T1",
+      "type": "R",
+      "elev": 540,
+      "demand": 0,
+      "x": 225,
+      "y": 225
+    },
+    {
+      "id": "J1",
+      "type": "J",
+      "elev": 500,
+      "demand": 1,
+      "x": 749,
+      "y": 449
+    },
+    {
+      "id": "J2",
+      "type": "J",
+      "elev": 480,
+      "demand": 2,
+      "x": 1273,
+      "y": 674
+    },
+    {
+      "id": "J3",
+      "type": "J",
+      "elev": 470,
+      "demand": 3,
+      "x": 1797,
+      "y": 449
+    },
+    {
+      "id": "J4",
+      "type": "J",
+      "elev": 455,
+      "demand": 2,
+      "x": 2246,
+      "y": 749
+    },
+    {
+      "id": "J5",
+      "type": "J",
+      "elev": 450,
+      "demand": 2,
+      "x": 1347,
+      "y": 1123
+    }
+  ],
+  "pipes": [
+    {
+      "id": "P1",
+      "from": "T1",
+      "to": "J1",
+      "length": 1200,
+      "diam": 110,
+      "rough": 0.0015,
+      "material": "hdpe"
+    },
+    {
+      "id": "P2",
+      "from": "J1",
+      "to": "J2",
+      "length": 900,
+      "diam": 90,
+      "rough": 0.0015,
+      "material": "hdpe"
+    },
+    {
+      "id": "P3",
+      "from": "J2",
+      "to": "J3",
+      "length": 700,
+      "diam": 75,
+      "rough": 0.0015,
+      "material": "hdpe"
+    },
+    {
+      "id": "P4",
+      "from": "J3",
+      "to": "J4",
+      "length": 600,
+      "diam": 63,
+      "rough": 0.0015,
+      "material": "hdpe"
+    },
+    {
+      "id": "P5",
+      "from": "J2",
+      "to": "J5",
+      "length": 800,
+      "diam": 63,
+      "rough": 0.0015,
+      "material": "hdpe"
+    }
+  ],
+  "expected": {
+    "source": "EPANET 2.2 via WNTR 1.5.0",
+    "tol": {
+      "flow_lps": 0.05,
+      "head_m": 0.05
+    },
+    "flows_lps": {
+      "P1": 10.0,
+      "P2": 9.0,
+      "P3": 5.0,
+      "P4": 2.0,
+      "P5": 2.0
+    },
+    "heads_m": {
+      "T1": 540.0,
+      "J1": 529.2715,
+      "J2": 511.8105,
+      "J3": 500.4717,
+      "J4": 496.0978,
+      "J5": 505.9787
+    }
+  }
+}

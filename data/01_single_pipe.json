@@ -1,0 +1,48 @@
+{
+  "name": "Single pipe",
+  "description": "Reservoir to one demand node. Has a closed-form answer, so it checks the headloss equation itself.",
+  "headloss": "HW",
+  "nodes": [
+    {
+      "id": "R1",
+      "type": "R",
+      "elev": 100,
+      "demand": 0,
+      "x": 211,
+      "y": 370
+    },
+    {
+      "id": "J1",
+      "type": "J",
+      "elev": 50,
+      "demand": 20,
+      "x": 1110,
+      "y": 370
+    }
+  ],
+  "pipes": [
+    {
+      "id": "P1",
+      "from": "R1",
+      "to": "J1",
+      "length": 1000,
+      "diam": 200,
+      "rough": 130,
+      "material": "castiron"
+    }
+  ],
+  "expected": {
+    "source": "EPANET 2.2 via WNTR 1.5.0",
+    "tol": {
+      "flow_lps": 0.05,
+      "head_m": 0.05
+    },
+    "flows_lps": {
+      "P1": 20.0
+    },
+    "heads_m": {
+      "R1": 100.0,
+      "J1": 97.6493
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "name": "Two loops",
+  "description": "A 2 x 3 grid with two loops and five demand nodes. Illustrative numbers.",
+  "headloss": "HW",
+  "nodes": [
+    {
+      "id": "R1",
+      "type": "R",
+      "elev": 100,
+      "demand": 0,
+      "x": 225,
+      "y": 450
+    },
+    {
+      "id": "J1",
+      "type": "J",
+      "elev": 40,
+      "demand": 0,
+      "x": 810,
+      "y": 450
+    },
+    {
+      "id": "J2",
+      "type": "J",
+      "elev": 38,
+      "demand": 10,
+      "x": 1530,
+      "y": 450
+    },
+    {
+      "id": "J3",
+      "type": "J",
+      "elev": 35,
+      "demand": 15,
+      "x": 2250,
+      "y": 450
+    },
+    {
+      "id": "J4",
+      "type": "J",
+      "elev": 36,
+      "demand": 12,
+      "x": 810,
+      "y": 1170
+    },
+    {
+      "id": "J5",
+      "type": "J",
+      "elev": 33,
+      "demand": 20,
+      "x": 1530,
+      "y": 1170
+    },
+    {
+      "id": "J6",
+      "type": "J",
+      "elev": 30,
+      "demand": 18,
+      "x": 2250,
+      "y": 1170
+    }
+  ],
+  "pipes": [
+    {
+      "id": "P1",
+      "from": "R1",
+      "to": "J1",
+      "length": 700,
+      "diam": 400,
+      "rough": 130
+    },
+    {
+      "id": "P2",
+      "from": "J1",
+      "to": "J2",
+      "length": 1000,
+      "diam": 300,
+      "rough": 130
+    },
+    {
+      "id": "P3",
+      "from": "J2",
+      "to": "J3",
+      "length": 800,
+      "diam": 250,
+      "rough": 125
+    },
+    {
+      "id": "P4",
+      "from": "J1",
+      "to": "J4",
+      "length": 800,
+      "diam": 250,
+      "rough": 125
+    },
+    {
+      "id": "P5",
+      "from": "J4",
+      "to": "J5",
+      "length": 1000,
+      "diam": 200,
+      "rough": 120
+    },
+    {
+      "id": "P6",
+      "from": "J5",
+      "to": "J6",
+      "length": 800,
+      "diam": 200,
+      "rough": 120
+    },
+    {
+      "id": "P7",
+      "from": "J2",
+      "to": "J5",
+      "length": 800,
+      "diam": 250,
+      "rough": 125
+    },
+    {
+      "id": "P8",
+      "from": "J3",
+      "to": "J6",
+      "length": 800,
+      "diam": 200,
+      "rough": 120
+    }
+  ],
+  "expected": {
+    "source": "EPANET 2.2 via WNTR 1.5.0",
+    "tol": {
+      "flow_lps": 0.05,
+      "head_m": 0.05
+    },
+    "flows_lps": {
+      "P1": 75.00001,
+      "P2": 49.84791,
+      "P3": 22.44689,
+      "P4": 25.15209,
+      "P5": 13.15209,
+      "P6": 10.55311,
+      "P7": 17.40102,
+      "P8": 7.44689
+    },
+    "heads_m": {
+      "R1": 100.0,
+      "J1": 99.3497,
+      "J2": 97.5796,
+      "J3": 96.7351,
+      "J4": 98.3071,
+      "J5": 97.0526,
+      "J6": 96.3851
+    }
+  }
+}

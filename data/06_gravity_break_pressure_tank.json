@@ -1,0 +1,182 @@
+{
+  "name": "Gravity system with a break pressure tank",
+  "description": "A tank at 1000 m feeds a village that drops about 150 m, which would overload PN 10 pipe. The break pressure tank B1 resets the head to its own water level (925 m). Change B1's type to Junction to see the pressure-rating warnings return. Illustrative numbers.",
+  "headloss": "HW",
+  "nodes": [
+    {
+      "id": "T1",
+      "type": "R",
+      "elev": 1000,
+      "demand": 0,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "J1",
+      "type": "J",
+      "elev": 960,
+      "demand": 1,
+      "x": 400,
+      "y": 80
+    },
+    {
+      "id": "B1",
+      "type": "B",
+      "elev": 925,
+      "demand": 0,
+      "x": 800,
+      "y": 160
+    },
+    {
+      "id": "J2",
+      "type": "J",
+      "elev": 890,
+      "demand": 2,
+      "x": 1200,
+      "y": 200
+    },
+    {
+      "id": "J3",
+      "type": "J",
+      "elev": 865,
+      "demand": 3,
+      "x": 1600,
+      "y": 320
+    },
+    {
+      "id": "J4",
+      "type": "J",
+      "elev": 845,
+      "demand": 2,
+      "x": 2000,
+      "y": 260
+    },
+    {
+      "id": "J5",
+      "type": "J",
+      "elev": 850,
+      "demand": 2,
+      "x": 1600,
+      "y": 640
+    }
+  ],
+  "pipes": [
+    {
+      "id": "P1",
+      "from": "T1",
+      "to": "J1",
+      "length": 480,
+      "diam": 110,
+      "material": "hdpe",
+      "rough": 150,
+      "pn": 10,
+      "fittings": [
+        {
+          "name": "Square entrance (reservoir to pipe)",
+          "K": 0.5,
+          "n": 1
+        }
+      ],
+      "minor": 0.5
+    },
+    {
+      "id": "P2",
+      "from": "J1",
+      "to": "B1",
+      "length": 470,
+      "diam": 110,
+      "material": "hdpe",
+      "rough": 150,
+      "pn": 10,
+      "fittings": [
+        {
+          "name": "Exit into a tank or reservoir",
+          "K": 1.0,
+          "n": 1
+        }
+      ],
+      "minor": 1.0
+    },
+    {
+      "id": "P3",
+      "from": "B1",
+      "to": "J2",
+      "length": 460,
+      "diam": 90,
+      "material": "hdpe",
+      "rough": 150,
+      "pn": 10,
+      "fittings": [
+        {
+          "name": "Square entrance (reservoir to pipe)",
+          "K": 0.5,
+          "n": 1
+        }
+      ],
+      "minor": 0.5
+    },
+    {
+      "id": "P4",
+      "from": "J2",
+      "to": "J3",
+      "length": 480,
+      "diam": 90,
+      "material": "hdpe",
+      "rough": 150,
+      "pn": 10,
+      "fittings": [],
+      "minor": 0
+    },
+    {
+      "id": "P5",
+      "from": "J3",
+      "to": "J4",
+      "length": 470,
+      "diam": 63,
+      "material": "hdpe",
+      "rough": 150,
+      "pn": 10,
+      "fittings": [],
+      "minor": 0
+    },
+    {
+      "id": "P6",
+      "from": "J3",
+      "to": "J5",
+      "length": 370,
+      "diam": 63,
+      "material": "hdpe",
+      "rough": 150,
+      "pn": 10,
+      "fittings": [],
+      "minor": 0
+    }
+  ],
+  "expected": {
+    "source": "EPANET 2.2 via WNTR 1.5.0",
+    "tol": {
+      "flow_lps": 0.05,
+      "head_m": 0.05
+    },
+    "flows_lps": {
+      "P1": 10.0,
+      "P2": 9.0,
+      "P3": 9.0,
+      "P4": 7.0,
+      "P5": 2.0,
+      "P6": 2.0
+    },
+    "heads_m": {
+      "T1": 1000.0,
+      "J1": 995.5609,
+      "B1": 925.0,
+      "J2": 915.706,
+      "J3": 909.6503,
+      "J4": 906.3395,
+      "J5": 907.0439
+    },
+    "inlet_heads_m": {
+      "B1": 991.9618
+    }
+  }
+}

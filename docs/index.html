@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PipeNet: build your water system today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+<header class="top">
+  <h1>PipeNet <span class="tag">build your water system today</span></h1>
+  <p>Lay out reservoirs, break pressure tanks, junctions and pipes, and watch heads, flows and pressures update. Solver: Todini&ndash;Pilati gradient method, checked against EPANET.</p>
+</header>
+
+<section class="toolbar" aria-label="Network controls">
+  <label>Start from
+    <select id="preset"></select>
+  </label>
+  <label>Headloss formula
+    <select id="model">
+      <option value="HW">Hazen&ndash;Williams (roughness = C)</option>
+      <option value="DW">Darcy&ndash;Weisbach (roughness = &epsilon; in mm)</option>
+    </select>
+  </label>
+  <span class="spacer"></span>
+  <button id="share" type="button">Copy share link</button>
+  <button id="exportJson" type="button">Export JSON</button>
+  <button id="importJson" type="button">Import JSON</button>
+  <button id="exportCsv" type="button">Export results CSV</button>
+  <input id="importFile" type="file" accept="application/json,.json" hidden>
+</section>
+<p id="desc" class="desc"></p>
+
+<main class="workspace">
+  <div class="editors">
+    <section class="card">
+      <div class="card-head"><h2>Nodes</h2><button id="addNode" type="button">Add node</button></div>
+      <p class="hint">Junction: elevation is ground level, demand in L/s. Reservoir and break tank: elevation is the water level. x and y are plan coordinates in metres.</p>
+      <div class="scroll"><table id="nodeTable" class="edit"></table></div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Pipes</h2><button id="addPipe" type="button">Add pipe</button></div>
+      <p class="hint">Positive flow runs From to To. Picking the end nodes suggests a length 10% over their straight-line distance. List every fitting the water passes through on the pipe, once each.</p>
+      <div id="pipeList" class="pipe-list"></div>
+      <p id="lenHint" class="hint lenhint" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <div class="stage">
+    <section class="card stage-card">
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <div id="lenWarn" class="status err" role="alert" hidden></div>
+      <div id="pressWarn" class="status err" role="alert" hidden></div>
+      <div class="zoombar" aria-label="Schematic view">
+        <button id="mode2d" type="button" aria-pressed="true">2D plan</button>
+        <button id="mode3d" type="button" aria-pressed="false">3D</button>
+        <span id="ctl3d" class="ctl3d" hidden>
+          <label><input id="showHgl" type="checkbox" checked> heads</label>
+          <label>Vertical <input id="vexag" type="range" min="1" max="60" step="1" value="5"><span id="vexagVal">&times;5</span></label>
+        </span>
+        <span class="hint grow">Mouse wheel zooms, drag pans (2D) or rotates (3D).</span>
+        <button id="zoomOut" type="button" aria-label="Zoom out">&minus;</button>
+        <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+        <button id="zoomFit" type="button">Fit</button>
+      </div>
+      <div class="schematic-wrap">
+        <div id="schematic" class="schematic"></div>
+        <div id="tip" class="tip" hidden></div>
+      </div>
+      <p class="legend">Hover or tap a node or pipe to see its head. In 3D, the dashed blue line above each pipe is its hydraulic grade line and the vertical lines show the pressure head at each end. Line width follows flow, arrows show direction. Nodes: <span class="chip ok"></span> pressure OK, <span class="chip warn"></span> below 10 m, <span class="chip bad"></span> negative, diamond = break tank. Pipes: red dashed = too short for its node positions, solid red = above its pressure rating.</p>
+    </section>
+  </div>
+</main>
+
+<section class="results">
+  <section class="card"><h2>Node results</h2><div class="scroll"><table id="nodeRes" class="res"></table></div></section>
+  <section class="card"><h2>Pipe results</h2><div class="scroll"><table id="pipeRes" class="res"></table></div></section>
+  <section class="card"><h2>Convergence</h2><div id="conv"></div></section>
+  <details class="card" id="verify">
+    <summary>Verification against EPANET</summary>
+    <p class="hint">Each bundled example is solved here in your browser and compared with reference values computed by EPANET 2.2 (through WNTR). A break pressure tank is represented in EPANET by a pressure reducing valve set to 0 m. The same check runs in Python in the repository tests.</p>
+    <div class="scroll"><table id="verifyTable" class="res"></table></div>
+  </details>
+</section>
+
+<section class="card help" id="help">
+  <h2>Guide</h2>
+
+  <h3>What C and &epsilon; are</h3>
+  <p><b>C</b> is the Hazen-Williams coefficient. It has no units and describes how smooth the pipe wall is: higher C means less friction. About 150 is typical for new plastic, 100 or less for old corroded iron. Hazen-Williams is an empirical formula for water in turbulent flow, usually applied to water at ordinary temperatures, diameters above about 50 mm and velocities below about 3 m/s.</p>
+  <p><b>&epsilon;</b> (epsilon) is the absolute roughness used by the Darcy-Weisbach equation: the average height of the bumps on the inside of the pipe wall, in millimetres. Lower &epsilon; means smoother. It is about 0.0015 mm for drawn plastic and copper, 0.15 mm for galvanized iron, and around 1 mm for rough concrete. The friction factor is worked out from &epsilon;/diameter and the Reynolds number (Swamee-Jain here). Darcy-Weisbach is the more general formula: it also covers laminar flow and other temperatures or fluids through the viscosity.</p>
+
+  <h3>How to pick a value</h3>
+  <ul>
+    <li>Choose the pipe material. The page fills in a typical value for whichever formula is selected, and switching formula converts every pipe that has a material.</li>
+    <li>Allow for age. C falls and &epsilon; rises as pipes corrode or scale. For design, many people use the lower end of the C range, or the value their national standard or the manufacturer specifies.</li>
+    <li>For an existing old pipe, a measured value from a field test is better than any table.</li>
+    <li>If you type your own number, the material changes to Custom so it is clear the value is yours.</li>
+    <li>The choice matters. Hazen-Williams friction loss scales with C<sup>&minus;1.852</sup>, so dropping C from 150 to 120 raises friction loss by about 50%.</li>
+  </ul>
+  <p class="hint">Typical textbook values, for orientation. Use your standard, manufacturer data or measurements for real design.</p>
+  <div class="scroll"><table id="matTable" class="res"></table></div>
+
+  <h3>Minor losses: bends, tees and valves</h3>
+  <p>Fittings cause extra headloss, <b>h = K v&sup2; / 2g</b>. K is a number measured in experiments and listed in handbooks: it counts how many velocity heads (v&sup2;/2g) the fitting loses. The page works out v&sup2;/2g, and you supply K.</p>
+  <p><b>How to choose K for a pipe:</b> add up every fitting the water passes through along that pipe, wherever it sits, including those at either end, and count each physical fitting once. You do not pick a junction type for each end. For example, a pipe leaving a tank through a square outlet (K 0.5) and a gate valve (K 0.2), then turning through a 90&deg; short-radius elbow where it meets the next junction (K 0.9), has a Total K of 1.6. That elbow belongs to this pipe or to the next one, not both. Add fittings from the dropdown (each shows as a tag you can remove) and use Other K for a value you look up.</p>
+  <ul>
+    <li>EPANET works the same way: K is a property of the pipe, and a junction itself has no loss. The head at the junction already includes the fitting loss on the pipe arriving there.</li>
+    <li>At a tee, K depends on the path. Put the run value on the pipe that continues straight, and the branch value on the side pipe.</li>
+    <li>K depends on bend radius and connection type, so treat the table as typical values. There is no entry for other bend angles, such as an acute or obtuse bend. Take K from a handbook (for example Crane TP-410) and type it in.</li>
+    <li>Minor losses matter for short pipes and high velocities. On long pipes (length over about 1000 diameters, a common rule of thumb) they are often small next to friction.</li>
+  </ul>
+  <div class="scroll"><table id="fitTable" class="res"></table></div>
+  <p class="hint">Typical values from the EPANET 2 manual.</p>
+
+  <h3>Break pressure tanks</h3>
+  <p>A break pressure tank (BPT) is an open tank on a gravity line. Water flows in, a float valve closes to match what is drawn downstream, and water leaves at the tank's own water level, so the pressure starts again from atmospheric. Set a node's type to Break tank and its elevation to the water level.</p>
+  <ul>
+    <li>For the pipes below it, the tank acts like a reservoir fixed at its water level.</li>
+    <li>For the pipes above it, the tank is a demand equal to what the downstream side draws. The head arriving above the tank level is burned off by the float valve, and the node results show how much.</li>
+    <li>If the arriving head is below the tank level, the tank cannot be fed and the page says so.</li>
+    <li>Each tank must be fed from one side only. Joining two reservoirs through a tank, or looping tanks, is rejected.</li>
+    <li>The tank's water level is taken as constant. Steady state only: no filling or draining over time.</li>
+  </ul>
+
+  <h3>The schematic: 2D plan and 3D view</h3>
+  <p>The figure is drawn from each node's x, y and elevation. Use the mouse wheel to zoom in and out around the cursor, and drag to pan the plan. The scroll bars work in both directions, so large networks never shrink to unreadable. Hover or tap a node or pipe to read its head, ground level and pressure.</p>
+  <p>The 3D button tilts the network into a perspective-free 3D view: drag to rotate, wheel to zoom. Elevation is exaggerated (the Vertical slider sets how much) because a village spreads over kilometres but drops only some tens of metres. With heads switched on, a dashed line above each pipe shows its hydraulic grade line, and the vertical lines at the ends show the pressure head. You can see the head restart at a break pressure tank.</p>
+
+  <h3>Pressure rating (PN)</h3>
+  <p>Each pipe can have a pressure rating in bar (PN 10 means 10 bar, about 102 m of head). The page flags a pipe when either the static pressure (no flow, from the highest water level feeding that part of the network) or the computed pressure at either end is above the rating. If that happens on a gravity line, place a break pressure tank higher up, which restarts the head from its own level. Pick the rating from your pipe supplier. No default is set from the material, and water hammer is not included.</p>
+</section>
+
+<footer class="foot">
+  <p>Steady state only: no pumps, controls, or extended-period simulation. Reservoirs and break tanks are fixed-level nodes. See the README for limitations. Source code: <a href="https://github.com/biswashk920/water-supply-pipe-network">github.com/biswashk920/water-supply-pipe-network</a></p>
+</footer>
+
+<script src="solver.js?v=5"></script>
+<script src="presets.js?v=5"></script>
+<script src="materials.js?v=5"></script>
+<script src="app.js?v=5"></script>
+</body>
+</html>

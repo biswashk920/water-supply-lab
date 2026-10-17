@@ -1,0 +1,165 @@
+{
+  "name": "Materials and fittings",
+  "description": "The single-loop layout with pipe materials and fitting losses (K): entrance and gate valve on P1, an elbow on P2, a tee branch on P3, elbow and 45 degree bend on P4. Illustrative numbers.",
+  "headloss": "HW",
+  "nodes": [
+    {
+      "id": "R1",
+      "type": "R",
+      "elev": 120,
+      "demand": 0,
+      "x": 150,
+      "y": 374
+    },
+    {
+      "id": "J1",
+      "type": "J",
+      "elev": 80,
+      "demand": 0,
+      "x": 499,
+      "y": 374
+    },
+    {
+      "id": "J2",
+      "type": "J",
+      "elev": 75,
+      "demand": 15,
+      "x": 874,
+      "y": 125
+    },
+    {
+      "id": "J3",
+      "type": "J",
+      "elev": 72,
+      "demand": 20,
+      "x": 874,
+      "y": 624
+    },
+    {
+      "id": "J4",
+      "type": "J",
+      "elev": 70,
+      "demand": 10,
+      "x": 1248,
+      "y": 374
+    }
+  ],
+  "pipes": [
+    {
+      "id": "P1",
+      "from": "R1",
+      "to": "J1",
+      "length": 800,
+      "diam": 300,
+      "rough": 130,
+      "material": "ductile",
+      "minor": 0.7,
+      "fittings": [
+        {
+          "name": "Square entrance (reservoir to pipe)",
+          "K": 0.5,
+          "n": 1
+        },
+        {
+          "name": "Gate valve, fully open",
+          "K": 0.2,
+          "n": 1
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "from": "J1",
+      "to": "J2",
+      "length": 500,
+      "diam": 200,
+      "rough": 150,
+      "material": "hdpe",
+      "minor": 0.9,
+      "fittings": [
+        {
+          "name": "Elbow 90\u00b0, short radius",
+          "K": 0.9,
+          "n": 1
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "from": "J1",
+      "to": "J3",
+      "length": 600,
+      "diam": 200,
+      "rough": 150,
+      "material": "hdpe",
+      "minor": 1.8,
+      "fittings": [
+        {
+          "name": "Tee, flow through the branch",
+          "K": 1.8,
+          "n": 1
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "from": "J2",
+      "to": "J4",
+      "length": 500,
+      "diam": 150,
+      "rough": 120,
+      "material": "gi",
+      "minor": 1.3,
+      "fittings": [
+        {
+          "name": "Elbow 90\u00b0, short radius",
+          "K": 0.9,
+          "n": 1
+        },
+        {
+          "name": "Elbow 45\u00b0",
+          "K": 0.4,
+          "n": 1
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "from": "J3",
+      "to": "J4",
+      "length": 600,
+      "diam": 150,
+      "rough": 120,
+      "material": "gi",
+      "minor": 0.6,
+      "fittings": [
+        {
+          "name": "Tee, flow through the run",
+          "K": 0.6,
+          "n": 1
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "source": "EPANET 2.2 via WNTR 1.5.0",
+    "tol": {
+      "flow_lps": 0.05,
+      "head_m": 0.05
+    },
+    "flows_lps": {
+      "P1": 45.0,
+      "P2": 21.54119,
+      "P3": 23.45881,
+      "P4": 6.54119,
+      "P5": 3.45881
+    },
+    "heads_m": {
+      "R1": 120.0,
+      "J1": 118.8139,
+      "J2": 117.7577,
+      "J3": 117.3088,
+      "J4": 117.0501
+    }
+  }
+}
