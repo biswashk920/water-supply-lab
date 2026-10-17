@@ -2,8 +2,8 @@
 
 An interactive pipe network tool that runs in the browser. Lay out reservoirs, break pressure tanks, junctions and pipes, choose pipe materials and fittings, and watch flows, heads and pressures update, in a 2D plan or a 3D view. The solver is written twice (Python and JavaScript) and both versions are checked against EPANET.
 
-- **Live page:** https://biswashk920.github.io/water-supply-pipe-network/
-- **Repository:** https://github.com/biswashk920/water-supply-pipe-network
+- **Live page:** https://biswashk920.github.io/water-supply-lab/
+- **Repository:** https://github.com/biswashk920/water-supply-lab
 
 ## What it does
 
