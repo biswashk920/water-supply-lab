@@ -1,24 +1,89 @@
-# PipeNet: build your water system today
+# Water Supply Lab: PipeNet
 
-An interactive pipe network tool that runs in the browser. Lay out reservoirs, break pressure tanks, junctions and pipes, choose pipe materials and fittings, and watch flows, heads and pressures update, in a 2D plan or a 3D view. The solver is written twice (Python and JavaScript) and both versions are checked against EPANET.
+PipeNet is a browser tool for analysing water supply pipe networks. You lay out reservoirs, break pressure tanks, junctions and pipes (in tables, on a schematic, or by clicking on a real map) and it solves flows, heads and pressures. The solver exists in Python and in JavaScript, and both are checked against EPANET.
 
 - **Live page:** https://biswashk920.github.io/water-supply-lab/
 - **Repository:** https://github.com/biswashk920/water-supply-lab
 
 ## What it does
 
-- Solves flows and nodal heads for looped or branched networks with one or more fixed-head reservoirs
-- **Break pressure tanks** for gravity systems: a tank resets the head to its own water level, and the page shows how much head it removes
-- **Pressure rating (PN) per pipe**, with a warning when static or computed pressure is above the rating
-- Headloss: Hazen-Williams, or Darcy-Weisbach with the Swamee-Jain friction factor (laminar below Re 2000)
-- Pipe material dropdown that fills in a typical C or ε, with a built-in guide explaining both and how to choose
-- Minor losses (bends, tees, valves): add fittings to a pipe from a list of typical K values (from the EPANET manual), shown as removable tags, plus an Other K field
-- Schematic with constant-size symbols: the mouse wheel zooms around the cursor, drag pans, and scroll bars work in both directions, so large networks stay readable
-- **3D view**: drag to rotate, adjustable vertical exaggeration, and (optionally) the hydraulic grade line above each pipe with vertical lines showing the pressure head at each end
-- Hover or tap a node or pipe to see its head, ground level and pressure at that point
-- Warns in red when a pipe is shorter than the straight-line distance between its end nodes
-- Validates input (unknown nodes, duplicate IDs, nodes not connected to a reservoir, tanks fed from two sides, non-positive dimensions)
-- Share a network as a link, export and import JSON, export results as CSV
+- Solves flows and nodal heads for looped or branched networks with one or more fixed-head reservoirs (Todini-Pilati gradient method).
+- **Headloss:** Hazen-Williams, or Darcy-Weisbach with the Swamee-Jain friction factor (laminar below Re 2000).
+- **Pipe materials:** a dropdown fills in a typical C or ε. A built-in guide explains both and how to choose.
+- **Minor losses:** add fittings (bends, tees, valves) to a pipe from a list of typical K values, plus an "Other K" field.
+- **Break pressure tanks** for gravity systems: a tank resets the head to its own water level, and the page shows how much head it removes.
+- **Pressure rating (PN) per pipe**, with a warning when static or computed pressure is above the rating.
+- **Pipe length check:** a red warning when a pipe is shorter than the straight-line distance between its end nodes. Picking the end nodes suggests a length 10% over that distance.
+- **Schematic:** 2D plan and 3D view (adjustable vertical exaggeration, optional hydraulic grade line). The mouse wheel zooms, drag pans or rotates, and hovering a node or pipe shows its head and pressure.
+- **Map mode:** place the network on OpenStreetMap, Esri satellite or OpenTopoMap (see below).
+- Input validation (unknown nodes, duplicate IDs, nodes not connected to a reservoir, tanks fed from two sides, non-positive dimensions).
+- Share a network as a link, export and import JSON, export results as CSV.
+
+## Map mode
+
+The **Map** button puts the network on a real map.
+
+1. Pick **Reservoir**, **Junction** or **Break tank** and click the map. The click gives the node's position, and its ground elevation is fetched from the Open-Meteo elevation service.
+2. Pick **Pipe** and click one node, then the next, to draw pipes. Clicking on continues the chain; click the same node or press Esc to stop.
+3. Drag a marker to move a node. Everything stays editable in the Nodes and Pipes tables.
+4. Switch the background with the layer button (OpenStreetMap, satellite, topographic).
+
+How it works: each node keeps x and y (metres from the first node you placed, using a local flat-earth projection that is fine over a few kilometres) and elevation. `lat` and `lon` are derived from these and saved with `origin` in the JSON. Files without a map position still load as before. A house can be modelled as a junction.
+
+**Elevations from the map are rough.** The elevation model has a grid of about 90 m, so values can be off by several metres. On a gravity line, where the whole drop may be tens of metres, that can change the results. Use the map to sketch the network quickly, then correct the elevations in the Nodes table with surveyed or GPS levels. A value you type is no longer marked as an estimate.
+
+**Running it from a folder:** OpenStreetMap blocks tile requests that carry no web address (Referer), so if you open `docs/index.html` straight from disk (`file:///...`) the OpenStreetMap layer shows "Access blocked". The satellite and topographic layers still work. To use OpenStreetMap locally, serve the folder:
+
+```bash
+cd docs
+python -m http.server 8000
+# then open http://localhost:8000
+```
+
+The published GitHub Pages address works without this. Map mode needs an internet connection for tiles and elevation; without it the rest of the page still works.
+
+## What it does not do
+
+- **No demand calculation.** The tool does not turn population, per-capita use, losses or peak factors into flows. You enter the demand at each junction in L/s (see the next section).
+- **Steady state only.** No extended-period simulation, no tanks that fill or drain, no pumps. Valves are only a fixed K (fully open), not controls.
+- **No water hammer**, pipe temperature derating or fitting pressure ratings. Pressure ratings are compared with static and computed pressure only.
+- **Demand-driven analysis:** demands are met regardless of pressure, so a network can show negative pressures instead of reduced supply.
+- **Break pressure tanks** are held at a constant water level. They are not checked for size, overflow or running dry.
+- **Minor-loss K** is whatever you enter. The tool does not work out K from bend angle or tee geometry.
+- **Map pipes are straight lines** between nodes, with no bend points. Real routes are longer, so adjust the length in the table (the red warning only catches pipes that are too short).
+- Not tested on very large networks. The linear solve is a dense Gaussian elimination, fine for tens to a few hundred nodes.
+- Not a design tool on its own. Check results against your own tools and codes before relying on them.
+
+## Demand and peak factors
+
+PipeNet solves the network for exactly the demands you type in. It has no peak factor setting, so **whatever case you enter is the case you get**. If you enter average demand, the results are average-day results; if you enter peak-hour demand, they are peak-hour results.
+
+Demand calculation is a separate step, done in a notebook or spreadsheet before you use the tool:
+
+```
+average demand (L/s) = population x litres per person per day / 86400
+design demand (L/s)  = average demand x (1 + losses) x design factor
+```
+
+The design factor is the peak factor for the case you are checking, usually maximum day or peak hour. The values for litres per person per day, losses and peak factors depend on your national or project design standard, so take them from that standard. The numbers below are only to show the arithmetic:
+
+| Item | Example value |
+|---|---|
+| Population served | 100 |
+| Litres per person per day | 45 |
+| Average demand | 100 x 45 / 86400 = 0.052 L/s |
+| Losses | 15% |
+| Peak factor | 3 |
+| Design demand | 0.052 x 1.15 x 3 = 0.18 L/s |
+
+**How to use it**
+
+1. In your spreadsheet, work out the design demand for each junction (for a house modelled as a junction, use the persons in that house).
+2. Type the result into that node's **Demand (L/s)** in the Nodes table.
+3. Read the results for that case.
+4. **To change the peak factor**, change it in your spreadsheet, retype the new demands and solve again. To compare cases (for example maximum day and peak hour), save each one with **Export JSON** or **Copy share link** and reopen it later.
+
+Two things to keep in mind. Distribution pipes are normally checked at peak hour, while a transmission main and storage are normally checked at maximum day, so you will usually run more than one case. And peak factors are usually higher for small groups of users, so a single factor applied to every house can understate the peak on a short branch that serves only a few houses.
 
 ## Choosing K for a pipe
 
@@ -38,13 +103,13 @@ Set a node's type to Break tank and its elevation to the water level. In the exa
 
 ## Pipe length check
 
-Node x and y are plan coordinates in metres. For each pipe the page computes the straight-line distance between its end nodes, `sqrt(dx^2 + dy^2 + dz^2)` with `dz` the elevation difference, and warns in red if the entered length is shorter. A pipe can be longer (bends, climbs) but not shorter. It is a warning, not a block: the network still solves using the length you entered, which underestimates headloss for that pipe. A 0.1% tolerance absorbs rounding. Picking a pipe's From and To nodes suggests a length 10% over the straight-line distance. Nodes without real coordinates (for example an imported file that has none) are skipped.
+For each pipe the page computes the straight-line distance between its end nodes, `sqrt(dx² + dy² + dz²)` with `dz` the elevation difference, and warns in red if the entered length is shorter. A pipe can be longer (bends, climbs) but not shorter. It is a warning, not a block: the network still solves using the length you entered, which underestimates headloss for that pipe. A 0.1% tolerance absorbs rounding. Nodes without real coordinates (for example an imported file that has none) are skipped.
 
 ## Materials and pressure ratings
 
 Choosing a material fills in a typical value of C (Hazen-Williams) or ε (Darcy-Weisbach, mm); switching formula converts every pipe that has a material, and typing your own number marks the pipe Custom. The values in `docs/materials.js` are typical textbook figures for orientation. The ε for cement-lined ductile iron and the range for concrete are rough guides rather than values from one standard, so use your own standard, the manufacturer's data or measurements for real design.
 
-The pressure rating is chosen per pipe (PN in bar, 1 bar is about 10.2 m of head); no default is set from the material. Static pressure is the no-flow pressure measured from the highest source level feeding that part of the network. Water hammer is not included.
+The pressure rating is chosen per pipe (PN in bar, 1 bar is about 10.2 m of head); no default is set from the material. Static pressure is the no-flow pressure measured from the highest source level feeding that part of the network.
 
 ## Hover heads
 
@@ -69,14 +134,18 @@ Todini-Pilati gradient method: Newton's method on the continuity and energy equa
 
 The 0.035 m difference in the Darcy-Weisbach case is inside the 0.05 m test tolerance. I have not traced its exact source; the likely candidates are the water viscosity constant and small differences in how EPANET and this code treat the friction factor. Treat agreement for Darcy-Weisbach as "close", not "identical".
 
-Other tests: closed-form single pipe, symmetric loop splits flow evenly, mass balance at every junction, energy consistency along every pipe, Darcy-Weisbach hand calculation, minor loss `K v²/2g`, break tank float-valve behaviour, pressure rating flags with and without the tank, and input validation. The in-page "Verification against EPANET" panel reruns the comparison in your browser. The page itself (layout, hover, zoom, 3D) was checked in Chromium by hand-written scripts that are not part of the repository tests.
+Other tests: closed-form single pipe, symmetric loop splits flow evenly, mass balance at every junction, energy consistency along every pipe, Darcy-Weisbach hand calculation, minor loss `K v²/2g`, break tank float-valve behaviour, pressure rating flags with and without the tank, and input validation. The in-page "Verification against EPANET" panel reruns the comparison in your browser.
+
+The page layout, hover, zoom, 3D view and map mode are checked by hand in a browser, not by automated tests. The map projection and elevation lookup are not covered by the Python or Node tests.
 
 The example networks use illustrative numbers, not data from a real system.
 
 ## Run it
 
 ```bash
-# page: open docs/index.html in a browser (no build step, no server needed)
+# page, without the OpenStreetMap layer: open docs/index.html in a browser
+# page, with all map layers: serve the docs folder (see "Map mode")
+cd docs && python -m http.server 8000
 
 # Python tests
 pip install -r requirements.txt
@@ -97,25 +166,12 @@ If the page shows a message about mismatched files, extract the whole zip into a
 
 ## Publish with GitHub Pages
 
-Repository Settings > Pages > Build and deployment > Deploy from a branch > `main`, folder `/docs`. The page then appears at https://biswashk920.github.io/water-supply-pipe-network/.
-
-## Limitations
-
-- Steady state only: no extended-period simulation, tanks that fill or drain, or pumps. Valves are only represented by a fixed K (fully open), not as controls
-- A break pressure tank is held at a constant water level. It is not checked for being big enough, overflowing, or running dry
-- Demand-driven analysis: demands are met regardless of pressure, so a network can show negative pressures instead of reduced supply
-- Reservoirs and tanks are fixed-head nodes (head = water level)
-- Minor losses are lumped on a pipe by a K value you choose; the tool does not work out K from bend angle or tee geometry
-- Pressure ratings are compared with static and computed pressure only. Water hammer, pipe temperature derating and the exact rating of fittings are not considered
-- Darcy-Weisbach slope uses a frozen friction factor, and the laminar/turbulent switch at Re 2000 is abrupt (EPANET interpolates between 2000 and 4000). Networks with flows right at that transition may converge slowly or not at all; the page reports non-convergence
-- The 3D view is an orthographic projection with exaggerated elevation. It reads x, y and elevation from the node table and does not follow real terrain between nodes
-- Not tested on very large networks. The linear solve is a dense Gaussian elimination, fine for tens to a few hundred nodes
-- Not a design tool. Check results against your own tools and codes before relying on them
+Repository Settings > Pages > Build and deployment > Deploy from a branch > `main`, folder `/docs`. The page then appears at https://biswashk920.github.io/water-supply-lab/.
 
 ## Repository layout
 
 ```
-docs/      the web page: index.html, solver.js, app.js, style.css, materials.js, presets.js (generated)
+docs/      the web page: index.html, solver.js, app.js, map.js, style.css, materials.js, presets.js (generated)
 python/    pipenet.py, reference solver (same algorithm as solver.js)
 data/      example networks with EPANET reference values
 tests/     pytest suite and Node test
@@ -127,6 +183,8 @@ tools/     generate_expected.py (needs wntr), build_presets.py
 - Todini, E. and Pilati, S. (1988). A gradient algorithm for the analysis of pipe networks. In *Computer Applications in Water Supply*, Research Studies Press.
 - Rossman, L. A. (2000). *EPANET 2 Users Manual*. US EPA.
 - Swamee, P. K. and Jain, A. K. (1976). Explicit equations for pipe-flow problems. *Journal of the Hydraulics Division, ASCE*, 102(5).
+
+Map data: OpenStreetMap contributors; satellite imagery Esri, Maxar, Earthstar Geographics; topographic tiles OpenTopoMap (CC-BY-SA); elevations from Open-Meteo.
 
 ## License
 

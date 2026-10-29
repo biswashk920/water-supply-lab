@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <header class="top">
@@ -57,6 +58,7 @@
       <div class="zoombar" aria-label="Schematic view">
         <button id="mode2d" type="button" aria-pressed="true">2D plan</button>
         <button id="mode3d" type="button" aria-pressed="false">3D</button>
+        <button id="modeMap" type="button" aria-pressed="false">Map</button>
         <span id="ctl3d" class="ctl3d" hidden>
           <label><input id="showHgl" type="checkbox" checked> heads</label>
           <label>Vertical <input id="vexag" type="range" min="1" max="60" step="1" value="5"><span id="vexagVal">&times;5</span></label>
@@ -66,9 +68,19 @@
         <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
         <button id="zoomFit" type="button">Fit</button>
       </div>
+      <div id="mapBar" class="zoombar" aria-label="Map tools" hidden>
+        <button type="button" data-tool="pan" aria-pressed="true">Move</button>
+        <button type="button" data-tool="R" aria-pressed="false">Reservoir</button>
+        <button type="button" data-tool="J" aria-pressed="false">Junction</button>
+        <button type="button" data-tool="B" aria-pressed="false">Break tank</button>
+        <button type="button" data-tool="pipe" aria-pressed="false">Pipe</button>
+        <span id="mapHint" class="hint grow">Drag to move the map.</span>
+      </div>
+      <p id="mapNote" class="hint" aria-live="polite" hidden></p>
       <div class="schematic-wrap">
         <div id="schematic" class="schematic"></div>
         <div id="tip" class="tip" hidden></div>
+        <div id="map" class="mapbox" hidden></div>
       </div>
       <p class="legend">Hover or tap a node or pipe to see its head. In 3D, the dashed blue line above each pipe is its hydraulic grade line and the vertical lines show the pressure head at each end. Line width follows flow, arrows show direction. Nodes: <span class="chip ok"></span> pressure OK, <span class="chip warn"></span> below 10 m, <span class="chip bad"></span> negative, diamond = break tank. Pipes: red dashed = too short for its node positions, solid red = above its pressure rating.</p>
     </section>
@@ -130,6 +142,10 @@
   <p>The figure is drawn from each node's x, y and elevation. Use the mouse wheel to zoom in and out around the cursor, and drag to pan the plan. The scroll bars work in both directions, so large networks never shrink to unreadable. Hover or tap a node or pipe to read its head, ground level and pressure.</p>
   <p>The 3D button tilts the network into a perspective-free 3D view: drag to rotate, wheel to zoom. Elevation is exaggerated (the Vertical slider sets how much) because a village spreads over kilometres but drops only some tens of metres. With heads switched on, a dashed line above each pipe shows its hydraulic grade line, and the vertical lines at the ends show the pressure head. You can see the head restart at a break pressure tank.</p>
 
+  <h3>Placing a network on a map</h3>
+  <p>Choose <b>Map</b>, pick Reservoir, Junction or Break tank, and click the map to place it. The click gives the node's position (x and y are metres from the first node) and its ground elevation comes from a coarse elevation model. Then pick <b>Pipe</b> and click one node after another to draw pipes. Drag a marker to move it. Switch the background between OpenStreetMap, satellite and topographic maps with the layer button.</p>
+  <p>Treat map elevations as a first sketch: the model grid is about 90 m, so values can be off by several metres, which matters on gravity lines. Correct them in the Nodes table with surveyed or GPS levels; a value you type is no longer marked as an estimate.</p>
+
   <h3>Pressure rating (PN)</h3>
   <p>Each pipe can have a pressure rating in bar (PN 10 means 10 bar, about 102 m of head). The page flags a pipe when either the static pressure (no flow, from the highest water level feeding that part of the network) or the computed pressure at either end is above the rating. If that happens on a gravity line, place a break pressure tank higher up, which restarts the head from its own level. Pick the rating from your pipe supplier. No default is set from the material, and water hammer is not included.</p>
 </section>
@@ -138,9 +154,11 @@
   <p>Steady state only: no pumps, controls, or extended-period simulation. Reservoirs and break tanks are fixed-level nodes. See the README for limitations. Source code: <a href="https://github.com/biswashk920/water-supply-pipe-network">github.com/biswashk920/water-supply-pipe-network</a></p>
 </footer>
 
-<script src="solver.js?v=5"></script>
-<script src="presets.js?v=5"></script>
-<script src="materials.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="solver.js?v=6"></script>
+<script src="presets.js?v=6"></script>
+<script src="materials.js?v=6"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="app.js?v=6"></script>
+<script src="map.js?v=6"></script>
 </body>
 </html>

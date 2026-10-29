@@ -106,3 +106,13 @@ input.bad-input { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
 .help ul { padding-left: 20px; }
 .foot { margin-top: 22px; color: var(--muted); font-size: 13px; }
 @media (prefers-reduced-motion: no-preference) { button { transition: border-color .12s; } }
+
+/* map mode */
+.mapbox { height: 62vh; min-height: 300px; border: 1px solid var(--line); border-radius: 4px; }
+@media (min-width: 1000px) { .mapbox { height: auto; flex: 1; } }
+.mapbox.place { cursor: crosshair; }
+.mkwrap { background: none; border: 0; }
+.mk { display: block; width: 16px; height: 16px; margin: 1px; border: 2px solid #fff; box-shadow: 0 0 0 1px #14263b; }
+.mk-J { border-radius: 50%; } .mk-B { transform: rotate(45deg); }
+.mk.sel { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mklbl { position: absolute; left: 22px; top: 0; font: 600 12px/18px "IBM Plex Sans", system-ui, sans-serif; color: #14263b; white-space: nowrap; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; }

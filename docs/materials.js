@@ -5,7 +5,7 @@
   else root.PIPE_DATA = factory();
 })(typeof self !== "undefined" ? self : this, function () {
   return {
-    version: 5,
+    version: 6,
     pnOptions: [6, 8, 10, 12.5, 16, 20, 25], // pressure ratings in bar
     materials: [
       { id: "pvc", name: "PVC / uPVC", C: 150, Crange: "140\u2013150", eps: 0.0015, epsRange: "0.0015", note: "Smooth plastic. Many designers use 140 to stay conservative." },

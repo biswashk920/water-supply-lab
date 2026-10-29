@@ -319,6 +319,6 @@
     return out;
   }
 
-  return { version: 5, solve: solve, validate: validate, lengthCheck: lengthCheck, distance3d: distance3d,
+  return { version: 6, solve: solve, validate: validate, lengthCheck: lengthCheck, distance3d: distance3d,
     pressureCheck: pressureCheck, BAR_TO_M: BAR_TO_M };
 });

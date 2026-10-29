@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
-  var APP_VERSION = 5;
+  var APP_VERSION = 6;
   if (!window.PipeNet || PipeNet.version !== APP_VERSION || !window.PIPE_DATA || window.PIPE_DATA.version !== APP_VERSION || !window.PRESETS) {
     $("status").className = "status err";
     $("status").textContent = "Some files of this page come from different versions (solver.js, materials.js or presets.js do not match app.js, " +
@@ -51,6 +51,7 @@
     $("model").value = net.headloss;
     $("desc").textContent = desc || net.description || "";
     $("lenHint").textContent = "";
+    if (window.MapMode) MapMode.loaded();
     renderEditors(); update();
   }
 
@@ -65,6 +66,7 @@
       if ((key === "extraK") && isNaN(v)) v = 0;
       obj[key] = v;
       if (key === "x" || key === "y") delete obj.autoXY;
+      if (key === "elev") delete obj.demElev; // typed by hand: no longer a model estimate
       if (after) after();
       update();
     });
@@ -253,6 +255,7 @@
   });
 
   /* ---------- solve + render ---------- */
+  function syncMap() { if (window.MapMode) MapMode.redraw(); }
   function update() {
     var errs = PipeNet.validate(net);
     result = null;
@@ -268,7 +271,7 @@
         else { st.className = "status warn"; st.textContent = "Did not converge in " + result.iterations + " iterations. Treat the numbers with caution."; }
       }
     }
-    [showLengthWarnings, showPressureWarnings, renderResults, drawSchematic, drawConvergence, hideTip].forEach(function (fn) {
+    [showLengthWarnings, showPressureWarnings, renderResults, drawSchematic, drawConvergence, syncMap, hideTip].forEach(function (fn) {
       try { fn(); } catch (e) {
         console.error(e);
         st.className = "status err"; st.textContent = "Display error in " + fn.name + ": " + e.message;
@@ -667,4 +670,6 @@
     try { start = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(3))))); } catch (e) { start = null; }
   }
   if (start) loadNet(start, "Loaded from a shared link."); else { sel.value = 5; loadNet(window.PRESETS[5]); }
+  window.PipeApp = { net: function () { return net; }, result: function () { return result; }, warns: function () { return { len: lenWarns, press: pressWarns }; },
+    update: update, renderEditors: renderEditors, uniqueId: uniqueId, suggestLength: suggestLength, matRough: matRough, nodeById: nodeById, fmt: fmt, esc: esc };
 })();
