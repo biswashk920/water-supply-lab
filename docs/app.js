@@ -226,7 +226,7 @@
   }
 
   function uniqueId(prefix, list) {
-    var n = list.length + 1;
+    var n = 1;
     while (list.some(function (o) { return o.id === prefix + n; })) n++;
     return prefix + n;
   }
@@ -437,12 +437,12 @@
     if (is3) order.sort(function (u, v) { return G[net.nodes[u].id].d - G[net.nodes[v].id].d; });
     order.forEach(function (i) {
       var n = net.nodes[i], P = G[n.id], rn = result ? result.nodes[i] : null, color = "var(--muted)", rr = fs * 0.75, label = esc(n.id);
-      if (n.type === "J" && rn) { color = rn.pressure < 0 ? "var(--bad)" : (rn.pressure < P_LOW ? "var(--warn)" : "var(--ok)"); label += " \u00b7 " + fmt(rn.pressure, 1) + " m"; }
+      if (n.type === "J" && rn) { color = rn.pressure < 0 ? "var(--p-neg)" : (rn.pressure < P_LOW ? "var(--p-low)" : "var(--p-high)"); label += " \u00b7 " + fmt(rn.pressure, 1) + " m"; }
       if (n.type === "R") color = "var(--ink)";
       if (n.type === "B") { color = "var(--accent)"; if (rn && rn.excess_head !== null && rn.excess_head !== undefined) label += " \u00b7 \u2212" + fmt(Math.max(rn.excess_head, 0), 1) + " m"; }
-      if (n.type === "J") out += '<circle cx="' + P.x + '" cy="' + P.y + '" r="' + rr + '" style="fill:' + color + '"/>';
-      else if (n.type === "R") out += '<rect x="' + (P.x - rr) + '" y="' + (P.y - rr) + '" width="' + 2 * rr + '" height="' + 2 * rr + '" style="fill:' + color + '"/>';
-      else out += '<polygon style="fill:' + color + '" points="' + [P.x, P.y - rr * 1.35, P.x + rr * 1.35, P.y, P.x, P.y + rr * 1.35, P.x - rr * 1.35, P.y].join(" ") + '"/>';
+      if (n.type === "J") out += '<circle cx="' + P.x + '" cy="' + P.y + '" r="' + rr + '" style="fill:' + color + ';stroke:var(--ink);stroke-width:1.5"/>';
+      else if (n.type === "R") out += '<rect x="' + (P.x - rr) + '" y="' + (P.y - rr) + '" width="' + 2 * rr + '" height="' + 2 * rr + '" style="fill:' + color + ';stroke:var(--ink);stroke-width:1.5"/>';
+      else out += '<polygon style="fill:' + color + ';stroke:var(--ink);stroke-width:1.5" points="' + [P.x, P.y - rr * 1.35, P.x + rr * 1.35, P.y, P.x, P.y + rr * 1.35, P.x - rr * 1.35, P.y].join(" ") + '"/>';
       labels += '<text x="' + P.x + '" y="' + (P.y + fs * 2.2) + '" font-size="' + fs + '" text-anchor="middle" style="fill:var(--ink)" font-weight="600">' + label + '</text>';
     });
     box.innerHTML = out + labels + "</svg>";

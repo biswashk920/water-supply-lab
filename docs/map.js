@@ -76,7 +76,7 @@
     });
     net.nodes.forEach(function (n, i) {
       var rn = res ? res.nodes[i] : null, col = n.type === "R" ? css("--ink") : (n.type === "B" ? css("--accent") :
-        (rn ? (rn.pressure < 0 ? css("--bad") : (rn.pressure < 10 ? css("--warn") : css("--ok"))) : css("--muted")));
+        (rn ? (rn.pressure < 0 ? css("--p-neg") : (rn.pressure < 10 ? css("--p-low") : css("--p-high"))) : css("--muted")));
       var m = L.marker([n.lat, n.lon], { draggable: true, icon: L.divIcon({ className: "mkwrap", iconSize: [18, 18], iconAnchor: [9, 9],
         html: '<span class="mk mk-' + n.type + (pending === n ? " sel" : "") + '" style="background:' + col + '"></span><span class="mklbl">' + A.esc(n.id) + "</span>" }) }).addTo(group);
       var tip = "<b>" + A.esc(n.id) + "</b><br>" + (n.type === "J" ? "Ground " : "Water level ") + A.fmt(n.elev, 1) + " m" + (n.demElev ? " (elevation model estimate)" : "");

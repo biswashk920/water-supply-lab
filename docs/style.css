@@ -3,6 +3,7 @@
   --accent: #0a6c8f; --accent-ink: #ffffff; --ok: #1e7b4f; --warn: #a15c00; --bad: #b3261e;
   --flow: #0a6c8f; --grid: #e6ecf2;
 }
+:root { --p-high: #00e600; --p-low: #ffffff; --p-neg: #000000; }
 @media (prefers-color-scheme: dark) {
   :root { --ink: #e6edf5; --muted: #9db0c4; --paper: #0e1722; --panel: #15212f; --line: #2a3b4e;
     --accent: #4cc0e6; --accent-ink: #0e1722; --ok: #57c78d; --warn: #e5a53d; --bad: #ff8b82;
@@ -95,8 +96,8 @@ input.bad-input { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
 .tip { position: absolute; z-index: 5; pointer-events: none; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 7px 10px; font-size: 13px; line-height: 1.45; max-width: 270px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .tip .sub { color: var(--muted); font-size: 12px; }
 .legend { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
-.chip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; }
-.chip.ok { background: var(--ok); } .chip.warn { background: var(--warn); } .chip.bad { background: var(--bad); }
+.chip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; border: 1px solid var(--ink); }
+.chip.ok { background: var(--p-high); } .chip.warn { background: var(--p-low); } .chip.bad { background: var(--p-neg); }
 
 .results { display: grid; gap: 14px; margin-top: 14px; grid-template-columns: minmax(0, 1fr); align-items: start; }
 @media (min-width: 1000px) { .results { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
